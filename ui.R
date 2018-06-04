@@ -34,15 +34,16 @@ shinyUI(fluidPage(
     ),
     
     mainPanel(
-    
-      
-      #plotOutput("proc"),
-      #plotOutput("recon"),
-      #plotOutput("code"),
-      plotOutput("predict")
-      #tableOutput("out")
-      #textOutput("class")
-      #verbatimTextOutput('console')
+      tags$div(
+        h3("Information"),
+        tags$ol(
+          tags$li("Draw a digit from 0-9 on the left."), 
+          tags$li("The bar chart below displays the conditional probabilities of the labels 0-9
+                  based on a neural network trained on the MNIST dataset.")
+        )
+      ),
+      plotOutput("predict"),
+      "Disclaimer: Validation set accuracy obtained was 97.5%, however, due to processing of canvas image results may differ."
     )
   ),
   

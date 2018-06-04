@@ -1,0 +1,12 @@
+name: digit_recognition_application
+title: Digit Recognition Application
+username:
+account: kevintham
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 354235
+bundleId: 1410489
+url: https://kevintham.shinyapps.io/digit_recognition_application/
+when: 1528121896.14978
+asMultiple: FALSE
+asStatic: FALSE
