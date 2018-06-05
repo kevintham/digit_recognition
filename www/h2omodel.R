@@ -40,17 +40,17 @@ ae_model <- h2o.deeplearning(x=x,
                              autoencoder=TRUE)
 
 # save file
-saveRDS(ae_model, file='autoencode.RDS')
+#h2o.downMojo(ae_model, path=getwd(), get_genmodel_jar=TRUE)
 
 # Train network with pretrained autoencoder
 nn_model <- h2o.deeplearning(x=x,
                              y=y,
                              training_frame=train,
                              ignore_const_cols=FALSE,
-                             model_id="nn_mode",
+                             model_id="nn_model",
                              hidden=hidden,
                              seed=1,
                              pretrained_autoencoder="autoencoder")
 
 # save model
-saveRDS(nn_model, file='h2omodel.RDS')
+h2o.download_mojo(nn_model, path=getwd(), get_genmodel_jar=TRUE)

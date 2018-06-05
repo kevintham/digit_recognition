@@ -6,9 +6,9 @@
 # 
 #    http://shiny.rstudio.com/
 #
+rm(list=ls())
 
 library(shiny)
-
 
 
 shinyUI(fluidPage(
@@ -18,19 +18,22 @@ shinyUI(fluidPage(
   
   titlePanel("Digit Recognition"),
   sidebarLayout(
-    sidebarPanel(
-      h1("Adjust Pen Width"),
+    sidebarPanel(class="row",
+      h1("User Inputs"),
       
+      h3("Pen Width:"),
       sliderInput("slider", "Width(px):", 10, 20, 15),
       
       h3("Draw Digit Here:"),
       
-      tags$div(id="canvas-div", class="col-md-4", 
+      div(
+        actionButton("clear", "Clear"),
+        actionButton("predict", "Predict")),
+      
+      div(id="canvas-div", class="col-md-4 row", 
                tags$canvas(id="canvas", width="240px", height="240px")
-      ),
-      actionButton("clear", "Clear"),
-      actionButton("predict", "Predict")
-
+      )
+    
     ),
     
     mainPanel(
@@ -43,7 +46,12 @@ shinyUI(fluidPage(
         )
       ),
       plotOutput("predict"),
-      "Disclaimer: Validation set accuracy obtained was 97.5%, however, due to processing of canvas image results may differ."
+      "Note:",
+      tags$ol(
+        tags$li("Please give about 10 seconds for app to calculate result."),
+        tags$li("Validation set accuracy obtained was 97.5%, however, 
+                due to processing of canvas image accuracy may be affected.")
+      )
     )
   ),
   

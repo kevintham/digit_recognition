@@ -6,93 +6,57 @@
 # 
 #    http://shiny.rstudio.com/
 #
+#rm(list=ls())
 
 library(shiny)
 library(imager)
 library(ggplot2)
-library(reshape2)
-library(caret)
-library(nnet)
-library(plyr)
-library(plot3D)
-library(RColorBrewer)
-
+library(h2o)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
   img_grey <- observeEvent(input$img_array, {
     
-    # rescale values to between 0-1
-    img <- 255 - unlist(input$img_array)
-    
-    # obtain width of image
-    width <- sqrt(length(img)/4)
-    
-    # reshape vector into array and remove transparency dimension
-    img_arr <- aperm(array(img, dim=c(4, width, width)), c(2,3,1))[,,1:3]
-    
-    # convert format for imager manipulation to resize and greyscale 
-    # and rescale between 0-1
-    im <- as.cimg(img_arr)
-    resized_img <- resize(im, 28, 28)
-    test_vec <- as.vector(grayscale(resized_img))/255
-    
-    # reformat data
-    test_arr <- array(test_vec, dim=c(1,784))
-    test_df <- data.frame(test_arr)
-    names(test_df) <- 1:784
-    
-    test_h2o <- as.h2o(test_df)
-    
-    autoencode <- readRDS('www/autoencode.RDS')
-    model <- readRDS('www/h2omodel.RDS')
     
     # loading message
     withProgress(message='Performing Calculations:', value=1, {
       
-      # To obtain reconstructed image from autoencoder
-      #recon_obs <- predict(autoencode, test_h2o)
+      # rescale values to between 0-1
+      img <- 255 - unlist(input$img_array)
       
-      # To obtain predictions from trained model
-      prediction <- as.vector(predict(model, test_h2o))
-    })
-    
-    # diagnostic plots
-    #output$proc <- renderPlot({
-    #  matrix_obs <- array(as.numeric(test_df), c(28,28))[,28:1]
-    #  image2D(matrix_obs, col=brewer.pal(9, 'Greys'))
-    #})
+      # obtain width of image
+      width <- sqrt(length(img)/4)
+      
+      # reshape vector into array and remove transparency dimension
+      img_arr <- aperm(array(img, dim=c(4, width, width)), c(2,3,1))[,,1:3]
+      
+      # convert format for imager manipulation to resize and greyscale 
+      # and rescale between 0-1
+      im <- as.cimg(img_arr)
+      resized_img <- resize(im, 28, 28)
+      test_vec <- as.vector(grayscale(resized_img))/255
+      
+      # reformat data
+      test_arr <- array(test_vec, dim=c(1,784))
+      test_df <- data.frame(test_arr)
+      names(test_df) <- 1:784
 
-    #output$code <- renderPlot({
-    #  code <- h2o.deepfeatures(autoencode, test_h2o, layer=2)
-    #  matrix_code <- array(code, c(8,8))[,8:1]
-    #  image2D(matrix_code, col=brewer.pal(9, 'Greys'))
-    #})
-    
-    #output$recon <- renderPlot({
-    #  matrix_obs <- array(as.numeric(recon_obs), c(28,28))[,28:1]
-    #  image2D(matrix_obs, col=brewer.pal(9,'Greys'))
+      # To obtain predictions from trained model
+      dfstr <- sapply(1:ncol(test_df), function(i) paste(paste0('\"', names(test_df)[i], '\"'), test_df[1,i], sep = ':'))
+      json <- paste0('{', paste0(dfstr, collapse = ','), '}')
+
+      predict <- h2o.predict_json(model = 'www/nn_model.zip', json = json)
+      prediction <- as.vector(predict)
       
-    #})
+      # Bar plot of prediction
+      output$predict <- renderPlot({
+        ggplot(data.frame(digit=factor(0:9), prob=as.numeric(prediction[[3]])), aes(x=digit,y=prob)) + 
+          geom_bar(stat='identity') + labs(title='Model Prediction of Input Digit')
+      })
     
-    
-    # Bar plot of prediction
-    output$predict <- renderPlot({
-    
-      ggplot(data.frame(digit=factor(0:9), prob=as.numeric(prediction[-1])), aes(x=digit,y=prob)) + 
-        geom_bar(stat='identity') + labs(title='Model Prediction of Input Digit')
     })
-    
     
   })
-  
-
-
-  
-  
-  
-  
-  
   
 })
