@@ -41,8 +41,9 @@ shinyUI(fluidPage(
         h3("Information"),
         tags$ol(
           tags$li("Draw a digit from 0-9 on the left."), 
-          tags$li("The bar chart below displays the conditional probabilities of the labels 0-9
-                  based on a neural network trained on the MNIST dataset.")
+          tags$li("The bar chart below displays the conditional 
+                   probabilities of the labels 0-9 based on a neural 
+                  network trained on the MNIST dataset.")
         )
       ),
       plotOutput("predict"),

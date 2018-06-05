@@ -43,7 +43,9 @@ shinyServer(function(input, output) {
       names(test_df) <- 1:784
 
       # To obtain predictions from trained model
-      dfstr <- sapply(1:ncol(test_df), function(i) paste(paste0('\"', names(test_df)[i], '\"'), test_df[1,i], sep = ':'))
+      dfstr <- sapply(1:ncol(test_df), function(i) 
+        paste(paste0('\"', names(test_df)[i], '\"'), test_df[1,i], sep = ':'))
+      
       json <- paste0('{', paste0(dfstr, collapse = ','), '}')
 
       predict <- h2o.predict_json(model = 'www/nn_model.zip', json = json)
@@ -51,7 +53,8 @@ shinyServer(function(input, output) {
       
       # Bar plot of prediction
       output$predict <- renderPlot({
-        ggplot(data.frame(digit=factor(0:9), prob=as.numeric(prediction[[3]])), aes(x=digit,y=prob)) + 
+        ggplot(data.frame(digit=factor(0:9), 
+                          prob=as.numeric(prediction[[3]])), aes(x=digit,y=prob)) + 
           geom_bar(stat='identity') + labs(title='Model Prediction of Input Digit')
       })
     
